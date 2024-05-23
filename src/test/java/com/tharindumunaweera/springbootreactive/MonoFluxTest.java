@@ -7,7 +7,9 @@ public class MonoFluxTest {
 
     @Test
     public void testMono() {
-        Mono<String> monoString = Mono.just("Tharindumunaweera");
-        monoString.subscribe(System.out::println);
+        Mono<?> monoString = Mono.just("Tharindumunaweera")
+                .then(Mono.error(new RuntimeException("Exception occured")))
+                .log();
+        monoString.subscribe(System.out::println);// subscriber should subscribe from publisher as a first step
     }
 }
