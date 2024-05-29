@@ -1,13 +1,38 @@
 package com.tharindumunaweera.springbootreactive;
 
+import com.tharindumunaweera.springbootreactive.controller.ProductController;
+import com.tharindumunaweera.springbootreactive.dto.ProductDto;
+import com.tharindumunaweera.springbootreactive.service.ProductService;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Mono;
 
-@SpringBootTest
+@RunWith(SpringRunner.class)
+@WebFluxTest(ProductController.class)
 class SpringbootReactiveApplicationTests {
 
+	@Autowired
+	private WebTestClient webTestClient;
+
+	@MockBean
+	private ProductService productService;
+
 	@Test
-	void contextLoads() {
+	public void addProductTest() {
+		Mono<ProductDto> productDTOMono = Mono.just(new ProductDto("102", "mobile", 1, 1000));
+		Mockito.when(productService.saveProduct(productDTOMono)).thenReturn(productDTOMono);
+
+		webTestClient.post().uri("/products")
+				.body(Mono.just(productDTOMono), ProductDto.class)
+				.exchange()
+				.expectStatus().isOk();
 	}
 
 }
