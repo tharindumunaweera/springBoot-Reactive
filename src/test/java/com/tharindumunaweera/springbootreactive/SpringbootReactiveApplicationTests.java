@@ -12,7 +12,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+import reactor.test.StepVerifierOptions;
 
 @RunWith(SpringRunner.class)
 @WebFluxTest(ProductController.class)
@@ -33,6 +36,25 @@ class SpringbootReactiveApplicationTests {
 				.body(Mono.just(productDTOMono), ProductDto.class)
 				.exchange()
 				.expectStatus().isOk();
+	}
+
+	@Test
+	public void getProductTest() {
+		Flux<ProductDto> productDtoFlux = Flux.just(new ProductDto("102", "mobile", 1, 1000), new ProductDto("103", "mobilepixel", 2, 2000));
+		Mockito.when(productService.getProducts()).thenReturn(productDtoFlux);
+
+		Flux<ProductDto> responseBody = webTestClient.get().uri("/products")
+				.exchange()
+				.expectStatus().isOk()
+				.returnResult(ProductDto.class)
+				.getResponseBody();
+
+		StepVerifier.create(responseBody)
+				.expectSubscription()
+				.expectNext(new ProductDto("102", "mobile", 1, 1000))
+				.expectNext(new ProductDto("103", "mobilepixel", 2, 2000))
+				.verifyComplete();
+
 	}
 
 }
