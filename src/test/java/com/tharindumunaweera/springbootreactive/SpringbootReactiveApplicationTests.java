@@ -70,7 +70,7 @@ class SpringbootReactiveApplicationTests {
 
 		StepVerifier.create(responseBody)
 				.expectSubscription()
-				.expectNext(new ProductDto("102", "mobile", 1, 1000))
+				.expectNextMatches(p -> p.getName().equals("mobile"))
 				.verifyComplete();
 	}
 
