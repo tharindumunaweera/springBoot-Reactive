@@ -57,4 +57,21 @@ class SpringbootReactiveApplicationTests {
 
 	}
 
+	@Test
+	public void getProductById() {
+		Mono<ProductDto> prodctDtoMono = Mono.just(new ProductDto("102", "mobile", 1, 1000));
+		Mockito.when(productService.getProduct("1")).thenReturn(prodctDtoMono);
+
+		Flux<ProductDto> responseBody = webTestClient.get().uri("/products/1")
+				.exchange()
+				.expectStatus().isOk()
+				.returnResult(ProductDto.class)
+				.getResponseBody();
+
+		StepVerifier.create(responseBody)
+				.expectSubscription()
+				.expectNext(new ProductDto("102", "mobile", 1, 1000))
+				.verifyComplete();
+	}
+
 }
